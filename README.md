@@ -2,11 +2,12 @@
 
 An Intelligent Contract on GenLayer that verifies freelance/remote-work
 deliverables against a client-defined rubric using an LLM, reaches
-consensus on the verdict through GenLayer's Equivalence Principle, and
+consensus on the verdict through GenLayer's Equivalence Principle and
 pays out through a pull-payment escrow once a delivery clears the
 client's quality threshold.
 
 🔗 **Live dashboard:** https://a200326.github.io/Work-Quality-Validator/
+
 📜 **Contract (GenLayer Studio):** `0x1eB3E0bc95c6b60816203401877f15b96aEeFDb1`
 
 ## The problem
@@ -14,34 +15,34 @@ client's quality threshold.
 On freelance platforms and crypto bounty boards, the biggest recurring
 dispute is whether delivered work actually meets the agreed standard.
 Today that's resolved either by slow human arbitration or a one-sided
-platform decision — and it's the same problem whether the deliverable
-is code, a translation, a design file, or written content.
+platform decision and it's the same problem whether the deliverable
+is code, a translation, a design file or written content.
 
 ## How it works
 
 1. **Client** creates a contract with a plain-language rubric (e.g.
    "code compiles", "has unit tests", "matches the spec"), an escrow
-   amount, and a minimum passing score.
+   amount and a minimum passing score.
 2. **Freelancer** submits a link to their delivered work.
 3. The contract fetches that content and asks the network's LLM
    validators to score it against the rubric, returning strict JSON
    (`{"score": 0-100, "issues": [...]}`). Every validator independently
    checks the leader's output against explicit, purely mechanical
-   criteria (valid JSON, correct keys, correct types) — never against
-   subjective quality judgments — so a network of different LLM
+   criteria (valid JSON, correct keys, correct types), never against
+   subjective quality judgments. so a network of different LLM
    providers can reliably reach consensus.
 4. If the score clears the threshold, the escrow is credited to the
    freelancer's pull-payment balance, withdrawable at any time. If not,
    the itemized issues are stored and the freelancer can revise and
    resubmit.
 
-The same contract works for code, content, translations, or design —
+The same contract works for code, content, translations or design —
 only the rubric text changes.
 
 ## Repo layout
 
 ```
-index.html                                        # read-only dashboard (GitHub Pages)
+index.html                                         # read-only dashboard (GitHub Pages)
 contracts/work_quality_validator_studio_safe.py    # the Intelligent Contract
 tests/test_work_quality_validator_studio_safe.py   # gltest direct-mode test suite
 ```
