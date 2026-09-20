@@ -36,7 +36,7 @@ is code, a translation, a design file or written content.
    the itemized issues are stored and the freelancer can revise and
    resubmit.
 
-The same contract works for code, content, translations or design —
+The same contract works for code, content, translations or design,
 only the rubric text changes.
 
 ## Repo layout
