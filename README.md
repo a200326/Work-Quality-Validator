@@ -1,4 +1,4 @@
-# WorkQualityValidator
+# Work Quality Validator
 
 An Intelligent Contract on GenLayer that verifies freelance/remote-work
 deliverables against a client-defined rubric using an LLM, reaches
