@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>WorkQualityValidator — Dashboard</title>
+<style>
+  body { font-family: -apple-system, Tahoma, sans-serif; max-width: 720px; margin: 40px auto; padding: 0 16px; background: #0f1115; color: #e6e6e6; }
+  h1 { font-size: 20px; }
+  h2 { font-size: 16px; margin-top: 36px; border-bottom: 1px solid #333; padding-bottom: 6px; }
+  label { display: block; margin-top: 10px; font-size: 13px; color: #aaa; }
+  input { width: 100%; box-sizing: border-box; padding: 8px; margin-top: 4px; background: #1a1d24; color: #eee; border: 1px solid #333; border-radius: 6px; font-family: monospace; }
+  button { margin-top: 14px; padding: 10px 16px; background: #4f7cff; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; }
+  button:hover { background: #3d68e6; }
+  pre { background: #1a1d24; padding: 12px; border-radius: 6px; white-space: pre-wrap; word-break: break-all; font-size: 12px; }
+  .card { background: #171a21; padding: 16px; border-radius: 10px; margin-top: 12px; }
+  .addr { font-size: 12px; color: #888; }
+  .note { background: #1f2937; border: 1px solid #334155; border-radius: 8px; padding: 12px; font-size: 13px; color: #cbd5e1; margin-top: 16px; }
+  .item { background: #1a1d24; border: 1px solid #2a2e37; border-radius: 8px; padding: 10px 12px; margin-top: 8px; font-size: 13px; }
+  .status { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; margin-right: 6px; }
+  .status-open, .status-submitted { background: #3730a3; color: #c7d2fe; }
+  .status-approved { background: #14532d; color: #86efac; }
+  .status-needs_revision { background: #7c2d12; color: #fdba74; }
+  .status-cancelled { background: #374151; color: #d1d5db; }
+</style>
+</head>
+<body>
+
+<h1>WorkQualityValidator — Read-only Dashboard</h1>
+<p class="addr">Contract: <code id="contractAddr">0x1eB3E0bc95c6b60816203401877f15b96aEeFDb1</code> (GenLayer Studio)</p>
+
+<div class="note">
+  This page only <b>reads</b> contract state — no wallet or key needed.
+  To create a contract, submit work, or withdraw, use
+  <a href="https://studio.genlayer.com/contracts" target="_blank" style="color:#93c5fd;">GenLayer Studio</a> directly.
+</div>
+
+<h2>All contracts</h2>
+<div class="card">
+  <button onclick="listAll()">Load all contracts</button>
+  <div id="list_out"></div>
+</div>
+
+<h2>Look up a single contract</h2>
+<div class="card">
+  <label>Contract ID</label>
+  <input id="g_id" value="0" />
+  <button onclick="getContract()">Get contract</button>
+  <pre id="g_out"></pre>
+</div>
+
+<h2>Check a balance</h2>
+<div class="card">
+  <label>Address</label>
+  <input id="b_addr" placeholder="0x..." />
+  <button onclick="getBalance()">Check balance</button>
+  <pre id="b_out"></pre>
+</div>
+
+<h2>How many contracts exist?</h2>
+<div class="card">
+  <button onclick="getCount()">Get contract count</button>
+  <pre id="n_out"></pre>
+</div>
+
+<script type="module">
+  import { createClient } from "https://esm.sh/genlayer-js@latest";
+  import { studionet } from "https://esm.sh/genlayer-js@latest/chains";
+
+  const CONTRACT = document.getElementById("contractAddr").textContent.trim();
+  const client = createClient({ chain: studionet });
+
+  window.listAll = async () => {
+    const box = document.getElementById("list_out");
+    box.innerHTML = "Loading...";
+    try {
+      const count = Number(await client.readContract({
+        address: CONTRACT, functionName: "get_contract_count", args: [],
+      }));
+      if (count === 0) { box.innerHTML = "No contracts yet."; return; }
+
+      const items = await Promise.all(
+        Array.from({ length: count }, (_, id) =>
+          client.readContract({ address: CONTRACT, functionName: "get_contract", args: [id] })
+            .then(r => ({ id, data: JSON.parse(r) }))
+            .catch(() => ({ id, data: null }))
+        )
+      );
+
+      box.innerHTML = items.map(({ id, data }) => {
+        if (!data) return `<div class="item">#${id} — failed to load</div>`;
+        const gen = (BigInt(data.amount) / 10n**18n).toString();
+        return `<div class="item">
+          <span class="status status-${data.status}">${data.status}</span>
+          <b>#${id}</b> — ${gen} GEN — score: ${data.score}/100 (threshold ${data.threshold})
+          <br><span class="addr">freelancer: ${data.freelancer}</span>
+        </div>`;
+      }).join("");
+    } catch (e) { box.innerHTML = "Error: " + e.message; }
+  };
+
+  window.getContract = async () => {
+    const out = document.getElementById("g_out");
+    out.textContent = "Loading...";
+    try {
+      const result = await client.readContract({
+        address: CONTRACT,
+        functionName: "get_contract",
+        args: [parseInt(document.getElementById("g_id").value)],
+      });
+      out.textContent = JSON.stringify(JSON.parse(result), null, 2);
+    } catch (e) { out.textContent = "Error: " + e.message; }
+  };
+
+  window.getBalance = async () => {
+    const out = document.getElementById("b_out");
+    out.textContent = "Loading...";
+    try {
+      const result = await client.readContract({
+        address: CONTRACT,
+        functionName: "get_balance",
+        args: [document.getElementById("b_addr").value.trim()],
+      });
+      out.textContent = "Balance (ledger): " + result;
+    } catch (e) { out.textContent = "Error: " + e.message; }
+  };
+
+  window.getCount = async () => {
+    const out = document.getElementById("n_out");
+    out.textContent = "Loading...";
+    try {
+      const result = await client.readContract({
+        address: CONTRACT,
+        functionName: "get_contract_count",
+        args: [],
+      });
+      out.textContent = "Total contracts: " + result;
+    } catch (e) { out.textContent = "Error: " + e.message; }
+  };
+</script>
+
+</body>
+</html>
