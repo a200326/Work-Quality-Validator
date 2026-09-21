@@ -1,12 +1,13 @@
-# WorkQualityValidator
+# Work Quality Validator
 
 An Intelligent Contract on GenLayer that verifies freelance/remote-work
 deliverables against a client-defined rubric using an LLM, reaches
 consensus on the verdict through GenLayer's comparative Equivalence
-Principle, and pays out through a pull-payment escrow once a delivery
+Principle and pays out through a pull-payment escrow once a delivery
 clears the client's quality threshold.
 
 📜 **Contract (GenLayer Studio):** `0x6eaF73f4075Be4E4145Ce9eF3053E1Ea938aE02A`
+
 🖥️ **Dashboard (separate repo/Project submission):** https://github.com/a200326/work-quality-validator-dashboard
 
 ## The problem
@@ -14,14 +15,14 @@ clears the client's quality threshold.
 On freelance platforms and crypto bounty boards, the biggest recurring
 dispute is whether delivered work actually meets the agreed standard.
 Today that's resolved either by slow human arbitration or a one-sided
-platform decision — and it's the same problem whether the deliverable
-is code, a translation, a design file, or written content.
+platform decision and it's the same problem whether the deliverable
+is code, a translation, a design file or written content.
 
 ## How it works
 
 1. **Client** creates a contract with a plain-language rubric (e.g.
    "code compiles", "has unit tests", "matches the spec"), an escrow
-   amount, and a minimum passing score.
+   amount and a minimum passing score.
 2. **Freelancer** submits a link to their delivered work.
 3. The contract fetches that content and asks the network's LLM
    validators to independently score it against the rubric.
@@ -30,13 +31,12 @@ is code, a translation, a design file, or written content.
    the itemized issues are stored and the freelancer can revise and
    resubmit.
 
-The same contract works for code, content, translations, or design —
-only the rubric text changes.
+The same contract works for code, content, translations or design, only the rubric text changes.
 
 ## Consensus design
 
 Every validator independently re-fetches the delivery URL and
-independently calls the LLM to produce its own score and issues list —
+independently calls the LLM to produce its own score and issues list,
 via `gl.eq_principle.prompt_comparative`. A separate LLM judgment then
 checks whether the leader's score is *equivalent* to each validator's
 own independent score (within a 15-point tolerance) and whether the
