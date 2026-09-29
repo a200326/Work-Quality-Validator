@@ -7,7 +7,7 @@ Principle and pays out through a pull-payment escrow once a delivery
 clears the client's quality threshold, provided it arrives before the
 declared deadline.
 
-📜 **Contract (GenLayer Studio):** `<NEW_CONTRACT_ADDRESS>`
+📜 **Contract (GenLayer Studio):** `0x7bd7EF7a429BAc6fFe0CC3E9e4d8c77Bb7ad63bF`
 
 🖥️ **Dashboard (separate repo/Project submission):** https://github.com/a200326/work-quality-validator-dashboard
 
